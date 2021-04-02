@@ -25,14 +25,12 @@ if EVENT_TYPE != "Download":
 TMDB_API_KEY = os.environ.get("TMDB_API_KEY")
 
 try:
-    SUBTITLE_LANGUAGES = list(
-        filter(str.strip, os.environ.get("SUBTITLE_LANGUAGES").lower().split(',')))
+    SUBTITLE_LANGUAGES = list(filter(str.strip, os.environ.get("SUBTITLE_LANGUAGES").lower().split(',')))
 except Exception:
     SUBTITLE_LANGUAGES = []
 
 try:
-    EXCLUDED_KEYWORDS = list(
-        filter(str.strip, os.environ.get("EXCLUDED_KEYWORDS").lower().split(',')))
+    EXCLUDED_KEYWORDS = list(filter(str.strip, os.environ.get("EXCLUDED_KEYWORDS").lower().split(',')))
 except Exception:
     EXCLUDED_KEYWORDS = []
 
@@ -53,7 +51,6 @@ elif SERVER_TYPE == "sonarr":
         log.error(e)
 
     tmdbData = req.json()
-    log.debug(tmdbData)
     TMDB_ID = tmdbData["tv_results"][0]["id"]
 
 params = {"api_key": TMDB_API_KEY}
@@ -64,7 +61,6 @@ except HTTPError as e:
     log.error(e)
 
 tmdbData = req.json()
-log.debug(tmdbData)
 
 if "original_language" in tmdbData:
     ORIGINAL_LANGUAGE = translate(tmdbData["original_language"])
@@ -103,7 +99,7 @@ for track in tracks:
         if "language" not in track["properties"] or track["properties"]["language"] in SUBTITLE_LANGUAGES:
             # No excluded keywords in track name
             if "track_name" not in track["properties"] or not excludeTrack:
-                # Forced track... or, SDH track iff no non-forced tracks in that language yet
+                # Forced track or non-SDH track... or, SDH track iff no non-forced tracks in that language yet
                 if ("forced_track" in track["properties"] and track["properties"]["forced_track"]) or "track_name" not in track["properties"] or "sdh" not in track["properties"]["track_name"].lower() or ("language" in track["properties"] and track["properties"]["language"] not in nonForcedSubtitleLanguages):
                     subtitleTracks.append(str(track["id"]))
 
@@ -142,16 +138,17 @@ if videoTrack != "" and audioTrack != "":
     os.remove(f"{FILE_PATH}.old")
 
 if SERVER_TYPE == "radarr":
-    payload={"name": "RefreshMovie", "movieIds": [ID]}
+    payload = {"name": "RefreshMovie", "movieIds": [ID]}
 elif SERVER_TYPE == "sonarr":
-    payload={"name": "RefreshSeries", "seriesId": ID}
+    payload = {"name": "RefreshSeries", "seriesId": ID}
 
-params={"apikey": untangle.parse('/config/config.xml').Config.ApiKey.cdata}
-req=requests.post(f"http://localhost:{'7878' if SERVER_TYPE == 'radarr' else '8989'}/api/v3/command", params=params, json=payload)
+params = {"apikey": untangle.parse('/config/config.xml').Config.ApiKey.cdata}
+req = requests.post(f"http://localhost:{'7878' if SERVER_TYPE == 'radarr' else '8989'}/api/v3/command", params=params, json=payload)
 try:
     req.raise_for_status()
 except HTTPError as e:
     log.error(e)
 
-os.environ["CONFIG_DIR"] = "/config"
-subprocess.run(["/usr/local/bin/arr-discord-notifier"], check=True)
+if os.environ.get("DISCORD_WEBHOOK"):
+    os.environ["CONFIG_DIR"] = "/config"
+    subprocess.run(["/usr/local/bin/arr-discord-notifier"], check=True)

@@ -8,6 +8,7 @@ chmod +x /usr/local/bin/arr-discord-notifier
 
 # Install MKVToolNix
 # https://mkvtoolnix.download/
+# ... and Python!
 export DEBIAN_FRONTEND=noninteractive
 . /etc/lsb-release
 apt-key adv --fetch-keys https://mkvtoolnix.download/gpg-pub-moritzbunkus.txt

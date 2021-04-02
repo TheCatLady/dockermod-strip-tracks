@@ -11,18 +11,20 @@
 
 [Docker Mod](https://github.com/linuxserver/docker-mods) to strip unwanted tracks from media files upon import to Radarr or Sonarr (compatible with [`linuxserver/radarr`](https://github.com/linuxserver/docker-radarr) and [`linuxserver/sonarr`](https://github.com/linuxserver/docker-sonarr))
 
-Also fetches [@hotio](https://github.com/hotio)'s _awesome_ [Arr Discord Notifier script](https://github.com/hotio/arr-discord-notifier) for beautiful Discord notifications!
+Also fetches [@hotio](https://github.com/hotio)'s _awesome_ [Arr Discord Notifier script](https://github.com/hotio/arr-discord-notifier) for pretty Discord notifications! &#10024;
 
 ## Behavior
 
-This [Docker Mod](https://github.com/linuxserver/docker-mods) was created for my own personal use, but it is still somewhat configurable to suit your own personal preferences.
+This [Docker Mod](https://github.com/linuxserver/docker-mods) was created for my own personal use, but it is still somewhat configurable to suit your own personal preferences. &#128049;
 
 ### Initialization
 
 On each container start, the `strip-tracks-init.sh` script will:
 
-1. Fetch, `chmod`, and `chown` [@hotio](https://github.com/hotio)'s [Arr Discord Notifier script](https://github.com/hotio/arr-discord-notifier) (have I mentioned that it is awesome?)
+1. Fetch, `chmod`, and `chown` [@hotio](https://github.com/hotio)'s [Arr Discord Notifier](https://github.com/hotio/arr-discord-notifier) script (have I mentioned yet that it is awesome?)
+
 2. Install the latest version of [MKVToolNix](https://mkvtoolnix.download/)
+
 3. Install required Python dependencies for, `chmod`, and `chown` the `strip-tracks.py` script
 
 ### Media Processing
@@ -30,12 +32,17 @@ On each container start, the `strip-tracks-init.sh` script will:
 When added for the **On Import** and/or **On Upgrade** triggers in Radarr and/or Sonarr, the `strip-tracks.py` script will:
 
 1. Query [The Movie Database (TMDb)](https://www.themoviedb.org/) to determine the original language of the movie or TV show
+
 2. Use [`mkvmerge`](https://mkvtoolnix.download/doc/mkvmerge.html) to remove unwanted tracks from the video file, keeping only:
      - the first video track
-     - the first audio track matching the original language
-     - subtitle tracks matching a provided ISO 639-2 language code which do not contain any excluded keywords
-3. Call the Radarr/Sonarr `command` API to refresh the movie or TV show
-4. Run [@hotio](https://github.com/hotio)'s super awesome [Arr Discord Notifier script](https://github.com/hotio/arr-discord-notifier)
+     - the first audio track matching the original language which does not contain any excluded keywords
+     - any subtitle tracks matching a provided [ISO 639-2 language code](https://www.loc.gov/standards/iso639-2/php/code_list.php) which do not contain any excluded keywords
+
+   (If there is not at least one video track and one audio track based on this logic, the file will not be modified.)
+
+3. Call the Radarr/Sonarr `command` API endpoint to refresh the movie or TV show
+
+4. Run [@hotio](https://github.com/hotio)'s super awesome [Arr Discord Notifier](https://github.com/hotio/arr-discord-notifier) script if the `DISCORD_WEBHOOK` environment variable was configured
 
 ## Usage
 
@@ -48,19 +55,11 @@ This [Docker Mod](https://github.com/linuxserver/docker-mods) is configured by d
 |`SUBTITLE_LANGUAGES`|Comma-delimited list of [ISO 639-2 language codes](https://www.loc.gov/standards/iso639-2/php/code_list.php) for which subtitle tracks should be kept (if not specified, no subtitles will be kept)|no|
 |`EXCLUDED_KEYWORDS`|Comma-delimited list of keywords for which subtitle tracks should be excluded|no|
 
-Please refer to [@hotio](https://github.com/hotio)'s [Arr Discord Notifier documentation](https://hotio.dev/arr-discord-notifier/) for details on how to configure and customize the Discord notifications.
+Please refer to [@hotio](https://github.com/hotio)'s [Arr Discord Notifier](https://hotio.dev/arr-discord-notifier/) documentation for details on how to configure and customize the pretty Discord notifications.
 
-## Building Locally
+Then, simply add a **Custom Script** connection in Radarr and/or Sonarr in **Settings &rarr; Connect**. Enter `/usr/local/bin/strip-tracks.py` for the path, select the **On Import** and/or **On Upgrade** triggers, and you're all set!
 
-If you would like to make modifications to the code, you can build the Docker image yourself instead of pulling the pre-built image available from [GitHub Container Registry (GHCR)](https://github.com/users/TheCatLady/packages/container/package/dockermod-strip-tracks) and [Docker Hub](https://hub.docker.com/r/thecatlady/dockermod-strip-tracks).
-
-```bash
-git clone https://github.com/TheCatLady/dockermod-strip-tracks.git
-cd dockermod-strip-tracks
-docker build --no-cache --pull -t thecatlady/dockermod-strip-tracks .
-```
-
-Once the image has been built, simply follow the directions in the "Usage" section above.
+Note that you should _not_ add [@hotio](https://github.com/hotio)'s [Arr Discord Notifier](https://hotio.dev/arr-discord-notifier/) script as a separate connection, since `strip-tracks.py` will execute it for you after it has finished processing the media file.
 
 ## How to Contribute
 
