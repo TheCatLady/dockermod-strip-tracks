@@ -1,6 +1,6 @@
 #!/usr/bin/with-contenv bash
 
-# Fetch & chmod hotio's awesome "Arr Discord Notifier" script
+# Fetch & chown/chmod hotio's awesome "Arr Discord Notifier" script
 # https://hotio.dev/arr-discord-notifier/
 curl -fsSL -o /usr/local/bin/arr-discord-notifier https://raw.githubusercontent.com/hotio/arr-discord-notifier/master/arr-discord-notifier.sh
 chown abc:abc /usr/local/bin/arr-discord-notifier

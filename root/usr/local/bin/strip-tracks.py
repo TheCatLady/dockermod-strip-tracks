@@ -111,7 +111,7 @@ for track in tracks:
                         nonForcedSubtitleLanguages.append(track["properties"]["language"])
 
 if videoTrack != "" and audioTrack != "":
-    log.info(f"Keeping video track {videoTrack}, audio track {audioTrack}, and subtitle tracks {subtitleTracks} for {FILE_PATH}")
+    log.info(f"Keeping video track {videoTrack}, audio track {audioTrack}, and subtitle tracks {",".join(subtitleTracks)} for {FILE_PATH}")
 
     orderedTracks = [videoTrack, audioTrack]
     orderedTracks.extend(subtitleTracks)
