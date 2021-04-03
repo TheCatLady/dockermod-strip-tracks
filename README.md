@@ -11,7 +11,7 @@
 
 [Docker Mod](https://github.com/linuxserver/docker-mods) to strip unwanted tracks from media files upon import to Radarr or Sonarr (compatible with [`linuxserver/radarr`](https://github.com/linuxserver/docker-radarr) and [`linuxserver/sonarr`](https://github.com/linuxserver/docker-sonarr))
 
-Also fetches [@hotio](https://github.com/hotio)'s _awesome_ [Arr Discord Notifier script](https://github.com/hotio/arr-discord-notifier) for pretty Discord notifications! &#10024;
+Also fetches [hotio](https://github.com/hotio)'s _awesome_ [Arr Discord Notifier script](https://github.com/hotio/arr-discord-notifier) for pretty Discord notifications! &#10024;
 
 ## Behavior
 
@@ -21,7 +21,7 @@ This [Docker Mod](https://github.com/linuxserver/docker-mods) was created for my
 
 On each container start, the `strip-tracks-init.sh` script will:
 
-1. Fetch, `chmod`, and `chown` [@hotio](https://github.com/hotio)'s [Arr Discord Notifier](https://github.com/hotio/arr-discord-notifier) script (have I mentioned yet that it is awesome?)
+1. Fetch, `chmod`, and `chown` [hotio](https://github.com/hotio)'s [Arr Discord Notifier](https://github.com/hotio/arr-discord-notifier) script (have I mentioned yet that it is awesome?)
 
 2. Install the latest version of [MKVToolNix](https://mkvtoolnix.download/)
 
@@ -42,7 +42,7 @@ When added for the **On Import** and/or **On Upgrade** triggers in Radarr and/or
 
 3. Call the Radarr/Sonarr `command` API endpoint to refresh the movie or TV show
 
-4. Run [@hotio](https://github.com/hotio)'s super awesome [Arr Discord Notifier](https://github.com/hotio/arr-discord-notifier) script if the `DISCORD_WEBHOOK` environment variable was configured
+4. Run [hotio](https://github.com/hotio)'s super awesome [Arr Discord Notifier](https://github.com/hotio/arr-discord-notifier) script if the `DISCORD_WEBHOOK` environment variable was configured
 
 ## Usage
 
@@ -55,11 +55,11 @@ This [Docker Mod](https://github.com/linuxserver/docker-mods) is configured by d
 |`SUBTITLE_LANGUAGES`|Comma-delimited list of [ISO 639-2 language codes](https://www.loc.gov/standards/iso639-2/php/code_list.php) for which subtitle tracks should be kept (if not specified, no subtitles will be kept)|no|
 |`EXCLUDED_KEYWORDS`|Comma-delimited list of keywords for which subtitle tracks should be excluded|no|
 
-Please refer to [@hotio](https://github.com/hotio)'s [Arr Discord Notifier](https://hotio.dev/arr-discord-notifier/) documentation for details on how to configure and customize the pretty Discord notifications.
+Please refer to [hotio](https://github.com/hotio)'s [Arr Discord Notifier](https://hotio.dev/arr-discord-notifier/) documentation for details on how to configure and customize the pretty Discord notifications.
 
 Then, simply add a **Custom Script** connection in Radarr and/or Sonarr in **Settings &rarr; Connect**. Enter `/usr/local/bin/strip-tracks.py` for the path, select the **On Import** and/or **On Upgrade** triggers, and you're all set!
 
-Note that you should _not_ add [@hotio](https://github.com/hotio)'s [Arr Discord Notifier](https://hotio.dev/arr-discord-notifier/) script as a separate connection, since `strip-tracks.py` will execute it for you after it has finished processing the media file.
+Note that you should _not_ add [hotio](https://github.com/hotio)'s [Arr Discord Notifier](https://hotio.dev/arr-discord-notifier/) script as a separate connection, since `strip-tracks.py` will execute it for you after it has finished processing the media file.
 
 ## How to Contribute
 
@@ -67,4 +67,4 @@ Show your support by starring this project! &#x1F31F; Pull requests, bug reports
 
 You can also support me by [becoming a GitHub sponsor](https://github.com/sponsors/TheCatLady) or [making a one-time PayPal donation](http://paypal.me/DHoung) &#x1F496;
 
-Additionally, don't forget to show your support for both [@hotio](https://github.com/hotio) and the wonderful folks over at [LinuxServer.io](https://github.com/linuxserver)!
+Additionally, don't forget to show your support for both [hotio](https://github.com/hotio) and the wonderful folks over at [LinuxServer.io](https://github.com/linuxserver)!

@@ -7,7 +7,22 @@ import os
 import requests
 import subprocess
 import sys
+import time
 import untangle
+
+def refresh_arr():
+    if SERVER_TYPE == "radarr":
+        payload = {"name": "RefreshMovie", "movieIds": [ID]}
+    elif SERVER_TYPE == "sonarr":
+        payload = {"name": "RefreshSeries", "seriesId": ID}
+
+    params = {"apikey": untangle.parse('/config/config.xml').Config.ApiKey.cdata}
+    req = requests.post(f"http://localhost:{'7878' if SERVER_TYPE == 'radarr' else '8989'}/api/v3/command", params=params, json=payload)
+    try:
+        req.raise_for_status()
+        return req.json()
+    except Exception as e:
+        log.error(e)
 
 if os.environ.get("radarr_eventtype"):
     SERVER_TYPE = "radarr"
@@ -57,10 +72,9 @@ params = {"api_key": TMDB_API_KEY}
 req = requests.get(f"https://api.themoviedb.org/3/{'movie' if SERVER_TYPE == 'radarr' else 'tv'}/{TMDB_ID}", params=params)
 try:
     req.raise_for_status()
-except HTTPError as e:
+    tmdbData = req.json()
+except Exception as e:
     log.error(e)
-
-tmdbData = req.json()
 
 if "original_language" in tmdbData:
     ORIGINAL_LANGUAGE = translate(tmdbData["original_language"])
@@ -114,6 +128,9 @@ if videoTrack != "" and audioTrack != "":
 
     os.rename(FILE_PATH, f"{FILE_PATH}.old")
 
+    # Refresh here as a workaround for https://github.com/Sonarr/Sonarr/issues/3366
+    refresh_arr()
+
     mkvmerge = [
         "mkvmerge",
         "-o", f"{FILE_PATH}.new",
@@ -130,24 +147,35 @@ if videoTrack != "" and audioTrack != "":
         mkvmerge.append("-S")
 
     mkvmerge.append(f"{FILE_PATH}.old")
-    mkvmerge.extend(
-        ["--track-order", f"0:{',0:'.join(orderedTracks)}"])
+    mkvmerge.extend(["--track-order", f"0:{',0:'.join(orderedTracks)}"])
 
     subprocess.run(mkvmerge, check=True)
     os.rename(f"{FILE_PATH}.new", FILE_PATH)
     os.remove(f"{FILE_PATH}.old")
 
-if SERVER_TYPE == "radarr":
-    payload = {"name": "RefreshMovie", "movieIds": [ID]}
-elif SERVER_TYPE == "sonarr":
-    payload = {"name": "RefreshSeries", "seriesId": ID}
+refreshData = refresh_arr()
 
-params = {"apikey": untangle.parse('/config/config.xml').Config.ApiKey.cdata}
-req = requests.post(f"http://localhost:{'7878' if SERVER_TYPE == 'radarr' else '8989'}/api/v3/command", params=params, json=payload)
-try:
-    req.raise_for_status()
-except HTTPError as e:
-    log.error(e)
+if "id" in refreshData:
+    COMMAND_ID = refreshData["id"]
+    refreshComplete = False
+
+    while not refreshComplete:
+        time.sleep(5)
+        params = {"apikey": untangle.parse('/config/config.xml').Config.ApiKey.cdata}
+        req = requests.get(f"http://localhost:{'7878' if SERVER_TYPE == 'radarr' else '8989'}/api/v3/command", params=params)
+
+        try:
+            req.raise_for_status()
+            response = req.json()
+        except Exception as e:
+            log.error(e)
+            break
+
+        for command in response:
+            if command["id"] == COMMAND_ID:
+                if command["status"] == "completed":
+                    refreshComplete = True
+                break
 
 if os.environ.get("DISCORD_WEBHOOK"):
     os.environ["CONFIG_DIR"] = "/config"
