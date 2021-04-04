@@ -16,7 +16,7 @@ def refresh_arr():
     elif SERVER_TYPE == "sonarr":
         payload = {"name": "RefreshSeries", "seriesId": ID}
 
-    params = {"apikey": untangle.parse('/config/config.xml').Config.ApiKey.cdata}
+    params = {"apikey": API_KEY}
     req = requests.post(f"http://localhost:{'7878' if SERVER_TYPE == 'radarr' else '8989'}/api/v3/command", params=params, json=payload)
     try:
         req.raise_for_status()
@@ -36,6 +36,11 @@ EVENT_TYPE = os.environ.get(f"{SERVER_TYPE}_eventtype")
 if EVENT_TYPE != "Download":
     log.info(f"Event type is not Download, but {EVENT_TYPE}. Nothing to do here. Exiting script.")
     sys.exit(0)
+
+API_KEY = os.environ.get("API_KEY")
+if not API_KEY:
+    API_KEY = untangle.parse('/config/config.xml').Config.ApiKey.cdata
+    os.environ["API_KEY"] = API_KEY
 
 TMDB_API_KEY = os.environ.get("TMDB_API_KEY")
 
@@ -98,13 +103,13 @@ for track in tracks:
 
     if track["type"] == "video":
         # Keep only the first video track
-        if videoTrack == "":
+        if not videoTrack:
             videoTrack = str(track["id"])
 
     elif track["type"] == "audio":
         # Keep only the first matching audio track
-        if audioTrack == "":
-            if "language" not in track["properties"] or ORIGINAL_LANGUAGE == "" or track["properties"]["language"] == ORIGINAL_LANGUAGE:
+        if not audioTrack:
+            if "language" not in track["properties"] or not ORIGINAL_LANGUAGE or track["properties"]["language"] == ORIGINAL_LANGUAGE:
                 if "track_name" not in track["properties"] or not excludeTrack:
                     audioTrack = str(track["id"])
 
@@ -120,8 +125,8 @@ for track in tracks:
                     if "language" in track["properties"] and "forced_track" not in track["properties"] or ("forced_track" in track["properties"] and not track["properties"]["forced_track"]):
                         nonForcedSubtitleLanguages.append(track["properties"]["language"])
 
-if videoTrack != "" and audioTrack != "":
-    log.info(f"Keeping video track {videoTrack}, audio track {audioTrack}, and subtitle tracks {','.join(subtitleTracks)} for {FILE_PATH}")
+if videoTrack and audioTrack:
+    log.info(f"Keeping video track {videoTrack}, audio track {audioTrack}, and subtitle track(s) {','.join(subtitleTracks)} for {FILE_PATH}")
 
     orderedTracks = [videoTrack, audioTrack]
     orderedTracks.extend(subtitleTracks)
@@ -161,7 +166,7 @@ if "id" in refreshData:
 
     while not refreshComplete:
         time.sleep(5)
-        params = {"apikey": untangle.parse('/config/config.xml').Config.ApiKey.cdata}
+        params = {"apikey": API_KEY}
         req = requests.get(f"http://localhost:{'7878' if SERVER_TYPE == 'radarr' else '8989'}/api/v3/command", params=params)
 
         try:
@@ -171,12 +176,17 @@ if "id" in refreshData:
             log.error(e)
             break
 
+        hasCommandId = False
         for command in response:
             if command["id"] == COMMAND_ID:
                 if command["status"] == "completed":
                     refreshComplete = True
+
+                hasCommandId = True
                 break
+        
+        if not hasCommandId:
+            break
 
 if os.environ.get("DISCORD_WEBHOOK"):
-    os.environ["CONFIG_DIR"] = "/config"
     subprocess.run(["/usr/local/bin/arr-discord-notifier"], check=True)
