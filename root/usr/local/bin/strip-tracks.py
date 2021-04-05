@@ -21,7 +21,25 @@ def refresh_arr():
 
     try:
         req.raise_for_status()
-        return req.json()
+        response = req.json()
+
+        if "id" in response:
+            COMMAND_ID = response["id"]
+
+            while True:
+                time.sleep(5)
+                params = {"apikey": API_KEY}
+                req = requests.get(f"http://localhost:{'7878' if SERVER_TYPE == 'radarr' else '8989'}/api/v3/command/{COMMAND_ID}", params=params)
+
+                try:
+                    req.raise_for_status()
+                    response = req.json()
+
+                    if response["status"].lower() == "completed":
+                        break
+                except Exception as e:
+                    log.error(e)
+                    break
     except Exception as e:
         log.error(e)
 
@@ -178,25 +196,7 @@ if videoTrack and audioTrack:
     os.rename(f"{FILE_PATH}.new", FILE_PATH)
     os.remove(f"{FILE_PATH}.old")
 
-    refreshData = refresh_arr()
-
-    if "id" in refreshData:
-        COMMAND_ID = refreshData["id"]
-
-        while True:
-            time.sleep(5)
-            params = {"apikey": API_KEY}
-            req = requests.get(f"http://localhost:{'7878' if SERVER_TYPE == 'radarr' else '8989'}/api/v3/command/{COMMAND_ID}", params=params)
-
-            try:
-                req.raise_for_status()
-                response = req.json()
-
-                if response["status"].lower() == "completed":
-                    break
-            except Exception as e:
-                log.error(e)
-                break
+    refresh_arr()
 
 if os.environ.get("DISCORD_WEBHOOK"):
     log.info("Sending Discord notification.")
