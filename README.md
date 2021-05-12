@@ -5,7 +5,6 @@
 [![Build Status](https://img.shields.io/github/workflow/status/TheCatLady/dockermod-strip-tracks/Build%20Docker%20Images?style=flat-square&logoColor=white&logo=github%20actions)](https://github.com/TheCatLady/dockermod-strip-tracks)<br/>
 [![Python](https://img.shields.io/github/languages/top/TheCatLady/dockermod-strip-tracks?style=flat-square&logoColor=white&logo=python)](https://github.com/TheCatLady/dockermod-strip-tracks)
 [![Code Quality](https://img.shields.io/lgtm/grade/python/github/TheCatLady/dockermod-strip-tracks?style=flat-square&logoColor=white&logo=lgtm&label=code%20quality)](https://lgtm.com/projects/g/TheCatLady/dockermod-strip-tracks/)
-[![License](https://img.shields.io/github/license/TheCatLady/dockermod-strip-tracks?style=flat-square&logoColor=white&logo=open%20source%20initiative)](https://github.com/TheCatLady/dockermod-strip-tracks/blob/main/LICENSE)<br/>
 [![Become a GitHub Sponsor](https://img.shields.io/badge/github%20sponsors-help%20feed%20my%20cats!-ff69b4?style=flat-square&logo=github%20sponsors)](https://github.com/sponsors/TheCatLady)
 
 [Docker Mod](https://github.com/linuxserver/docker-mods) to strip unwanted tracks from media files upon import to Radarr or Sonarr (compatible with [`linuxserver/radarr`](https://github.com/linuxserver/docker-radarr) and [`linuxserver/sonarr`](https://github.com/linuxserver/docker-sonarr))
