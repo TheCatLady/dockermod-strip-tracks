@@ -43,6 +43,29 @@ def refresh_arr():
     except Exception as e:
         log.error(e)
 
+def restore_meta():
+    if SCENE_NAME or RELEASE_GROUP:
+        params = {"apikey": API_KEY}
+        req = requests.get(f"http://localhost:{'7878' if SERVER_TYPE == 'radarr' else '8989'}/api/v3/{'movie' if SERVER_TYPE == 'radarr' else 'episode'}/{MOVIE_ID if SERVER_TYPE == 'radarr' else EPISODE_ID}", params=params)
+
+        try:
+            req.raise_for_status()
+            item = req.json()
+
+            FILE_ID = item[f"{'movieFile' if SERVER_TYPE == 'radarr' else 'episodeFile'}"]["id"]
+
+            req = requests.get(f"http://localhost:{'7878' if SERVER_TYPE == 'radarr' else '8989'}/api/v3/{'movie' if SERVER_TYPE == 'radarr' else 'episode'}file/{FILE_ID}", params=params)
+            req.raise_for_status()
+            file = req.json()
+
+            file["sceneName"] = SCENE_NAME
+            file["releaseGroup"] = RELEASE_GROUP
+
+            req = requests.put(f"http://localhost:{'7878' if SERVER_TYPE == 'radarr' else '8989'}/api/v3/{'movie' if SERVER_TYPE == 'radarr' else 'episode'}file/{FILE_ID}", params=params, json=file)
+            req.raise_for_status()
+        except Exception as e:
+            log.error(e)
+
 if os.environ.get("radarr_eventtype"):
     SERVER_TYPE = "radarr"
 else:
@@ -72,27 +95,31 @@ if not TMDB_API_KEY:
     sys.exit(1)
 
 try:
-    SUBTITLE_LANGUAGES = list(filter(str.strip, os.environ.get("SUBTITLE_LANGUAGES").lower().split(',')))
+    SUBTITLE_LANGUAGES = list(filter(str.strip, os.environ.get("SUBTITLE_LANGUAGES").lower().split(",")))
 except Exception:
     SUBTITLE_LANGUAGES = []
 
 try:
-    EXCLUDED_KEYWORDS = list(filter(str.strip, os.environ.get("EXCLUDED_KEYWORDS").lower().split(',')))
+    EXCLUDED_KEYWORDS = list(filter(str.strip, os.environ.get("EXCLUDED_KEYWORDS").lower().split(",")))
 except Exception:
     EXCLUDED_KEYWORDS = []
 
 if SERVER_TYPE == "radarr":
     MOVIE_ID = int(os.environ.get("radarr_movie_id"))
+    FILE_ID = int(os.environ.get("radarr_moviefile_id"))
     FILE_PATH = os.environ.get("radarr_moviefile_path")
     TMDB_ID = os.environ.get("radarr_movie_tmdbid")
     SCENE_NAME = os.environ.get("radarr_moviefile_scenename")
+    RELEASE_GROUP = os.environ.get("radarr_moviefile_releasegroup")
 
 elif SERVER_TYPE == "sonarr":
     SERIES_ID = int(os.environ.get("sonarr_series_id"))
-    EPISODE_ID = int(os.environ.get("sonarr_episodefile_id"))
+    EPISODE_ID = int(os.environ.get("sonarr_episodefile_episodeids").split(",")[0])
+    FILE_ID = int(os.environ.get("sonarr_episodefile_id"))
     FILE_PATH = os.environ.get("sonarr_episodefile_path")
     TVDB_ID = os.environ.get("sonarr_series_tvdbid")
     SCENE_NAME = os.environ.get("sonarr_episodefile_scenename")
+    RELEASE_GROUP = os.environ.get("sonarr_episodefile_releasegroup")
 
     params = {"api_key": TMDB_API_KEY, "external_source": "tvdb_id"}
     req = requests.get(f"https://api.themoviedb.org/3/find/{TVDB_ID}", params=params)
@@ -197,6 +224,7 @@ if videoTrack and audioTrack:
     os.remove(f"{FILE_PATH}.old")
 
     refresh_arr()
+    restore_meta()
 
 if os.environ.get("DISCORD_WEBHOOK"):
     log.info("Sending Discord notification.")
