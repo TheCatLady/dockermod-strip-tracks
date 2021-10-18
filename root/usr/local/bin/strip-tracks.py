@@ -220,7 +220,7 @@ if videoTrack and audioTrack:
     mkvmerge.extend(["--track-order", f"0:{',0:'.join(orderedTracks)}"])
 
     subprocess.run(mkvmerge, check=True)
-    os.rename(f"{FILE_PATH}.new", FILE_PATH)
+    os.rename(f"{FILE_PATH}.new", f"{os.path.splitext(FILE_PATH)[0]}.mkv")
     os.remove(f"{FILE_PATH}.old")
 
     refresh_arr()
