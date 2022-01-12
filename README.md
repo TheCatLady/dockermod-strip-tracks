@@ -21,7 +21,7 @@ On each container start, the `strip-tracks-init.sh` script will:
 
 1. Fetch, `chmod`, and `chown` [hotio](https://github.com/hotio)'s [Arr Discord Notifier](https://github.com/hotio/arr-discord-notifier) script (have I mentioned yet that it is awesome?)
 
-2. Install the latest version of [MKVToolNix](https://mkvtoolnix.download/)
+2. Install [MKVToolNix](https://mkvtoolnix.download/)
 
 3. Install required Python dependencies for, `chmod`, and `chown` the `strip-tracks.py` script
 
