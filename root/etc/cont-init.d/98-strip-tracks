@@ -10,9 +10,9 @@ chmod +x /usr/local/bin/arr-discord-notifier
 # https://mkvtoolnix.download/
 # ... and Python!
 if [ -f /usr/bin/apt ]; then
-    apt-get install --no-install-recommends -y mkvtoolnix python3-minimal python3-pip
+  apt-get install --no-install-recommends -y mkvtoolnix python3-minimal python3-pip
 elif [ -f /sbin/apk ]; then
-    apk add --no-cache -u mkvtoolnix python3 py3-pip
+  apk add --no-cache -u mkvtoolnix python3 py3-pip
 fi
 
 # Install Python dependencies and chown/chmod script

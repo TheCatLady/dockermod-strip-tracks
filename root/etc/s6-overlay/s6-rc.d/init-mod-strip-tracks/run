@@ -1,0 +1,36 @@
+#!/usr/bin/with-contenv bash
+
+# chown/chmod strip-tracks script
+chown abc:abc /usr/local/bin/strip-tracks.py
+chmod +x /usr/local/bin/strip-tracks.py
+
+# Fetch & chown/chmod hotio's awesome "Arr Discord Notifier" script
+# https://hotio.dev/arr-discord-notifier/
+curl -fsSL -o /usr/local/bin/arr-discord-notifier https://raw.githubusercontent.com/hotio/arr-discord-notifier/master/arr-discord-notifier.sh
+chown abc:abc /usr/local/bin/arr-discord-notifier
+chmod +x /usr/local/bin/arr-discord-notifier
+
+# Install MKVToolNix
+# https://mkvtoolnix.download/
+# ... and Python!
+## Ubuntu
+if [ -f /usr/bin/apt ]; then
+  echo "\
+    mkvtoolnix \
+    python3-minimal \
+    python3-pip" >> /mod-repo-packages-to-install.list
+
+fi
+# Alpine
+if [ -f /sbin/apk ]; then
+  echo "\
+    mkvtoolnix \
+    python3 \
+    py3-pip" >> /mod-repo-packages-to-install.list
+fi
+
+# Install Python dependencies
+echo "\
+    iso_639_codes \
+    requests \
+    untangle" >> /mod-pip-packages-to-install.list
